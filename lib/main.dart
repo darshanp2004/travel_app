@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
         title: title,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(),
-        home: FoodOrderScreen(
+        home: splashScreen(
         ),
       ),
     );
