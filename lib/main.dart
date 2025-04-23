@@ -23,7 +23,7 @@ void main() {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => UserDetailsBloc()),
+        //BlocProvider(create: (context) => UserDetailsBloc()),
         BlocProvider(create: (context) => UserDetailsCubit()),
         BlocProvider(create: (context) => ShowDetailsCubit()),
       ],
