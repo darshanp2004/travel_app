@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:travel_app/food_order_screen.dart';
 import 'package:travel_app/login_screen.dart';
 import 'package:travel_app/utils/string.dart';
 import 'package:travel_app/profile_screen.dart';
@@ -50,6 +51,11 @@ class _bottomNavigationState extends State<bottomNavigationbarScreen> {
         appBar:myIndex==1||myIndex==2||myIndex==3?null: AppBar(
           backgroundColor: Colors.blue,
           title: Text(welcomeText),
+          actions: [
+              IconButton(onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>FoodOrderScreen()));
+              }, icon: Icon(Icons.ac_unit))
+          ],
           systemOverlayStyle: SystemUiOverlayStyle(
             statusBarColor: Colors.blue,
             statusBarBrightness: Brightness.light,
