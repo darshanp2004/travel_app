@@ -14,6 +14,7 @@ import 'package:travel_app/timeline_cubit/timeline_cubit.dart';
 import 'package:travel_app/update_user_details_cubit/user_details_cubit.dart';
 import 'package:travel_app/utils/imageResources.dart';
 import 'package:travel_app/utils/string.dart';
+import 'PackageDetail_cubit/location_cubit.dart';
 import 'user_details_update_bloc/user_details_bloc.dart';
 import 'splash_screen.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +27,7 @@ void main() {
         //BlocProvider(create: (context) => UserDetailsBloc()),
         BlocProvider(create: (context) => UserDetailsCubit()),
         BlocProvider(create: (context) => ShowDetailsCubit()),
+        BlocProvider(create: (context) => LocationCubit()),
       ],
       child: MyApp(),
     ),

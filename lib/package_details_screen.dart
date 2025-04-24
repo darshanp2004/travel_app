@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travel_app/utils/string.dart';
+import 'PackageDetail_cubit/location_cubit.dart';
+import 'PackageDetail_cubit/location_state.dart';
 
 class packageDetailsScreen extends StatefulWidget {
   const packageDetailsScreen({super.key});
@@ -12,33 +13,12 @@ class packageDetailsScreen extends StatefulWidget {
 
 class _packageDetailsScreenState extends State<packageDetailsScreen> {
   final ScrollController _controller = ScrollController();
-  bool isFavorited = false;
-  Set<String> favoritePlace = {};
-  List<Map<String, String>> locations = [
-    {"place": "Bali", "days": "6 days , 5 nights", "price": "INR 1,59,000"},
-    {"place": "Maldivs", "days": "8 days ,  7nights", "price": "INR 1,79,999"},
-    {"place": "Paris", "days": "5 days , 4 nights", "price": "INR 99,999"},
-    {
-      "place": "Hong Kong",
-      "days": "8 days , 7 nights",
-      "price": "INR 1,24,999",
-    },
-    {"place": "Berlin", "days": "9 days , 8 nights", "price": "INR 1,99,999"},
-    {"place": "Rome", "days": "6 days , 5 nights", "price": "INR 1,59,000"},
-    {"place": "Bhutan", "days": "8 days , 7 nights", "price": "INR 1,79,999"},
-    {"place": "Bangkok", "days": "5 days , 4 nights", "price": "INR 99,999"},
-    {
-      "place": "Singapore",
-      "days": "8 days , 7 nights",
-      "price": "INR 1,24,999",
-    },
-    {"place": "Dubai", "days": "9 days , 8 nights", "price": "INR 1,99,999"},
-    {"place": "Phuket", "days": "6 days , 5 nights", "price": "INR 1,59,000"},
-    {"place": "New York", "days": "8 days , 7 nights", "price": "INR 1,79,999"},
-    {"place": "Amsterdam", "days": "5 days , 4 nights", "price": "INR 99,999"},
-    {"place": "Madrid", "days": "8 days , 7 nights", "price": "INR 1,24,999"},
-    {"place": "Tokyo", "days": "9 days , 8 nights", "price": "INR 1,99,999"},
-  ];
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<LocationCubit>().fetchLocations();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,70 +64,79 @@ class _packageDetailsScreenState extends State<packageDetailsScreen> {
                       thickness: 10,
                       radius: Radius.circular(10),
                       controller: _controller,
-                      child: ListView.builder(
-                        controller: _controller,
-                        itemCount: locations.length,
-                        itemBuilder: (context, index) {
-                          final location = locations[index];
-                          final isFavorited = favoritePlace.contains(
-                            location[place]!,
-                          );
-                          return Card(
-                            surfaceTintColor: Colors.lightBlue,
-                            margin: EdgeInsets.only(
-                              left: 20,
-                              right: 20,
-                              bottom: 10,
-                            ),
-                            child: ListTile(
-                              title: Text(
-                                location[place]!,
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(location[days]!),
-                                  Text(location[price]!),
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      isFavorited
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      color: isFavorited ? Colors.red : null,
+                      child: BlocBuilder<LocationCubit, LocationState>(
+                        builder: (context, state) {
+                          if (state is LocationLoading) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (state is LocationLoaded) {
+                            return ListView.builder(
+                              controller: _controller,
+                              itemCount: state.locations.length,
+                              itemBuilder: (context, index) {
+                                return Card(
+                                  surfaceTintColor: Colors.lightBlue,
+                                  margin: EdgeInsets.only(
+                                    left: 20,
+                                    right: 20,
+                                    bottom: 10,
+                                  ),
+                                  child: ListTile(
+                                    title: Text(
+                                      state.locations[index].username,
+                                      style: TextStyle(fontSize: 18),
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        if (isFavorited) {
-                                          favoritePlace.remove(
-                                            location[place]!,
-                                          );
-                                        } else {
-                                          favoritePlace.add(location[place]!);
-                                        }
-                                        print("$likedPlaces : $favoritePlace");
-                                      });
-                                    },
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(state.locations[index].name),
+                                        Text(
+                                          state.locations[index].address.city,
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(
+                                            state.locations[index].selected ==
+                                                    true
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color:
+                                                state
+                                                            .locations[index]
+                                                            .selected ==
+                                                        true
+                                                    ? Colors.red
+                                                    : null,
+                                          ),
+                                          onPressed: () {
+                                            context
+                                                .read<LocationCubit>()
+                                                .favorite(index);
+                                          },
+                                        ),
+
+                                        IconButton(
+                                          onPressed: () async {
+                                            context.read<LocationCubit>().share(
+                                              index,
+                                            );
+                                          },
+                                          icon: Icon(Icons.share),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      Share.share(
-                                        "$place : ${location[place]!}\n"
-                                        "$duration : ${location[days]!}\n"
-                                        "$price : ${location[price]!}\n",
-                                      );
-                                    },
-                                    icon: Icon(Icons.share),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
+                                );
+                              },
+                            );
+                          } else if (state is LocationError) {
+                            return Center(child: Text(state.message));
+                          }
+                          return SizedBox();
                         },
                       ),
                     ),
